@@ -35,7 +35,7 @@ void CydiaWriteSources() {
     FILE *file(fopen(SOURCES_LIST, "w"));
     _assert(file != NULL);
 
-    fprintf(file, "deb http://apt.saurik.com/ ios/%.2f main\n", kCFCoreFoundationVersionNumber);
+    fprintf(file, "deb http://apt.bingner.com/ ios/%.2f main\n", kCFCoreFoundationVersionNumber);
 
     for (NSString *key in [Sources_ allKeys]) {
         if ([key hasPrefix:@"deb:http:"] && [Sources_ objectForKey:[NSString stringWithFormat:@"deb:https:%s", [key UTF8String] + 9]])
