@@ -6700,6 +6700,8 @@ static void HomeControllerReachabilityCallback(SCNetworkReachabilityRef reachabi
 
 - (void) loadView {
     list_ = [[[UITableView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]] autorelease];
+    if ([list_ respondsToSelector:@selector(setCellLayoutMarginsFollowReadableWidth:)])
+        [list_ setCellLayoutMarginsFollowReadableWidth:NO];
     [list_ setAutoresizingMask:UIViewAutoresizingFlexibleBoth];
     [list_ setRowHeight:46];
     [(UITableView *) list_ setDataSource:self];
@@ -7253,6 +7255,8 @@ static void HomeControllerReachabilityCallback(SCNetworkReachabilityRef reachabi
     [self setView:view];
 
     table_ = [[[UITableView alloc] initWithFrame:[[self view] bounds] style:UITableViewStyleGrouped] autorelease];
+    if ([table_ respondsToSelector:@selector(setCellLayoutMarginsFollowReadableWidth:)])
+        [table_ setCellLayoutMarginsFollowReadableWidth:NO];
     [table_ setAutoresizingMask:UIViewAutoresizingFlexibleBoth];
     [(UITableView *) table_ setDataSource:self];
     [table_ setDelegate:self];
@@ -7960,6 +7964,8 @@ static void HomeControllerReachabilityCallback(SCNetworkReachabilityRef reachabi
 
 - (void) loadView {
     list_ = [[[UITableView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame] style:UITableViewStylePlain] autorelease];
+    if ([list_ respondsToSelector:@selector(setCellLayoutMarginsFollowReadableWidth:)])
+        [list_ setCellLayoutMarginsFollowReadableWidth:NO];
     [list_ setAutoresizingMask:UIViewAutoresizingFlexibleBoth];
     [list_ setRowHeight:53];
     [(UITableView *) list_ setDataSource:self];
