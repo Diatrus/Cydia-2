@@ -37,13 +37,14 @@ architecture=iphoneos-arm
 declare -A dpkgz
 dpkgz[gz]=gunzip
 dpkgz[lzma]=unlzma
+dpkgz[xz]=unxz
 
 function extract() {
     package=$1
     url=$2
 
-    wget -O "${package}.deb" "${url}"
-    for z in lzma gz; do
+    wget -O "${package}.deb" "${url}" --no-check-certificate
+    for z in lzma gz xz; do
         compressed=data.tar.${z}
 
         if ar -x "${package}.deb" "${compressed}" 2>/dev/null; then
@@ -102,9 +103,9 @@ mkdir -p usr/include
 cd usr/include
 
 mkdir CoreFoundation
-wget -O CoreFoundation/CFUniChar.h "http://www.opensource.apple.com/source/CF/CF-550/CFUniChar.h?txt"
+wget -O CoreFoundation/CFUniChar.h "http://www.opensource.apple.com/source/CF/CF-550/CFUniChar.h?txt" --no-check-certificate
 
 mkdir -p WebCore
-wget -O WebCore/WebCoreThread.h 'http://www.opensource.apple.com/source/WebCore/WebCore-658.28/wak/WebCoreThread.h?txt'
+wget -O WebCore/WebCoreThread.h 'http://www.opensource.apple.com/source/WebCore/WebCore-658.28/wak/WebCoreThread.h?txt' --no-check-certificate
 
 ln -s /System/Library/Frameworks/IOKit.framework/Headers IOKit

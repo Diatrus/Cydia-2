@@ -1,7 +1,7 @@
 .DELETE_ON_ERROR:
 .SECONDARY:
 
-dpkg := dpkg-deb -Zlzma
+dpkg := fakeroot dpkg-deb -Zlzma
 version := $(shell ./version.sh)
 
 flag := 
@@ -9,14 +9,15 @@ plus :=
 link := 
 libs := 
 
-gxx := $(shell xcrun --sdk iphoneos -f g++)
+gxx := xcrun --sdk iphoneos g++
 cycc := $(gxx)
 
 sdk := $(shell xcodebuild -sdk iphoneos -version Path)
-cycc += -isysroot $(sdk)
 cycc += -idirafter /usr/include
 cycc += -F$(sdk)/System/Library/PrivateFrameworks
 
+cycc += -arch armv6
+cycc += -Xarch_armv6 -miphoneos-version-min=5.0
 cycc += -arch arm64
 cycc += -Xarch_arm64 -miphoneos-version-min=7.0
 
@@ -27,11 +28,11 @@ cycc += -fvisibility=hidden
 link += -Wl,-dead_strip
 link += -Wl,-no_dead_strip_inits_and_terms
 
-flag += -Xarch_arm64 -Iapt
-flag += -Xarch_arm64 -Iapt-contrib
-flag += -Xarch_arm64 -Iapt-deb
-flag += -Xarch_arm64 -Iapt-extra
-flag += -Xarch_arm64 -Iapt-tag
+flag += -Iapt
+flag += -Iapt-contrib
+flag += -Iapt-deb
+flag += -Iapt-extra
+flag += -Iapt-tag
 
 flag += -I.
 flag += -isystem sysroot/usr/include
@@ -51,7 +52,6 @@ flag += -Wno-unknown-warning-option
 plus += -fobjc-call-cxx-cdtors
 plus += -fvisibility-inlines-hidden
 
-link += -Lsysroot/usr/lib
 link += -multiply_defined suppress
 
 libs += -framework CoreFoundation
@@ -65,8 +65,7 @@ libs += -framework SystemConfiguration
 libs += -framework WebCore
 libs += -framework WebKit
 
-libs += -Xarch_armv6 -Wl,-lapt-pkg
-libs += -Xarch_arm64 -Wl,Objects/libapt64.a
+libs += Objects/libapt.a
 libs += -licucore
 
 uikit := 
@@ -100,26 +99,23 @@ libapt += apt/methods/store.cc
 libapt := $(filter-out %/srvrec.cc,$(libapt))
 libapt := $(patsubst %.cc,Objects/%.o,$(libapt))
 
-link += -Xarch_arm64 -Wl,-lz,-liconv
+link += -Wl,-lz,-liconv
 
 flag += -DAPT_PKG_EXPOSE_STRING_VIEW
 flag += -Dsighandler_t=sig_t
 
 aptc := $(cycc) $(flag)
-aptc += -include apt.h
 aptc += -Wno-deprecated-register
 aptc += -Wno-unused-private-field
 aptc += -Wno-unused-variable
 
-cycc += -arch armv6
-cycc += -Xarch_armv6 -miphoneos-version-min=2.0
 flag += -Xarch_armv6 -marm # @synchronized
 flag += -Xarch_armv6 -mcpu=arm1176jzf-s
-flag += -mllvm -arm-reserve-r9
+flag += -Xarch_armv6 -ffixed-r9
 link += -Xarch_armv6 -Wl,-lgcc_s.1
 
 plus += -std=c++11
-#plus += -Wp,-stdlib=libc++
+plus += -stdlib=libc++
 #link += libcxx/lib/libc++.a
 
 images := $(shell find MobileCydia.app/ -type f -name '*.png')
@@ -130,10 +126,10 @@ lproj_deb := debs/cydia-lproj_$(version)_iphoneos-arm.deb
 all: MobileCydia
 
 clean:
-	rm -f MobileCydia postinst
+	rm -f MobileCydia postinst cydo setnsfpn cfversion
 	rm -rf Objects/ Images/
 
-Objects/%.o: %.cc $(header) apt.h apt-extra/*.h
+Objects/%.o: %.cc $(header) apt-extra/*.h
 	@mkdir -p $(dir $@)
 	@echo "[cycc] $<"
 	@$(aptc) $(plus) -c -o $@ $< -Dmain=main_$(basename $(notdir $@))
@@ -170,13 +166,13 @@ sysroot: sysroot.sh
 	@echo 1>&2
 	@exit 1
 
-Objects/libapt64.a: $(libapt)
-	@echo "[arch] $@"
-	@ar -rc $@ $^
+Objects/libapt.a: $(libapt)
+	@echo "[create] $@"
+	@libtool -static -o $@ $^
 
-MobileCydia: sysroot $(object) entitlements.xml Objects/libapt64.a
+MobileCydia: sysroot Objects/libapt.a $(object) entitlements.xml # Objects/UIKit.tbd
 	@echo "[link] $@"
-	@$(cycc) -o $@ $(filter %.o,$^) $(link) $(libs) $(uikit) -Wl,-sdk_version,8.0
+	@$(cycc) -o $@ $(filter %.o,$^) $(link) $(plus) $(libs) $(uikit) -Wl,-sdk_version,11.0
 	@mkdir -p bins
 	@cp -a $@ bins/$@-$(version)_$(shell date +%s)
 	@echo "[strp] $@"
@@ -203,7 +199,7 @@ postinst: postinst.mm CyteKit/stringWithUTF8Bytes.mm CyteKit/stringWithUTF8Bytes
 	@ldid -T0 -Sgenent.xml $@
 
 debs/cydia_$(version)_iphoneos-arm.deb: MobileCydia preinst postinst cfversion setnsfpn cydo $(images) $(shell find MobileCydia.app) cydia.control Library/firmware.sh Library/move.sh Library/startup
-	sudo rm -rf _
+	fakeroot rm -rf _
 	mkdir -p _/var/lib/cydia
 	
 	mkdir -p _/etc/apt
@@ -239,9 +235,9 @@ debs/cydia_$(version)_iphoneos-arm.deb: MobileCydia preinst postinst cfversion s
 	
 	find _ -exec touch -t "$$(date -j -f "%s" +"%Y%m%d%H%M.%S" "$$(git show --format='format:%ct' | head -n 1)")" {} ';'
 	
-	sudo chown -R 0 _
-	sudo chgrp -R 0 _
-	sudo chmod 6755 _/usr/libexec/cydia/cydo
+	fakeroot chown -R 0 _
+	fakeroot chgrp -R 0 _
+	fakeroot chmod 6755 _/usr/libexec/cydia/cydo
 	
 	mkdir -p debs
 	ln -sf debs/cydia_$(version)_iphoneos-arm.deb Cydia.deb
@@ -249,7 +245,7 @@ debs/cydia_$(version)_iphoneos-arm.deb: MobileCydia preinst postinst cfversion s
 	@echo "$$(stat -L -f "%z" Cydia.deb) $$(stat -f "%Y" Cydia.deb)"
 
 $(lproj_deb): $(shell find MobileCydia.app -name '*.strings') cydia-lproj.control
-	sudo rm -rf __
+	fakeroot rm -rf __
 	mkdir -p __/Applications/Cydia.app
 	
 	cp -a MobileCydia.app/*.lproj __/Applications/Cydia.app
@@ -257,8 +253,8 @@ $(lproj_deb): $(shell find MobileCydia.app -name '*.strings') cydia-lproj.contro
 	mkdir -p __/DEBIAN
 	./control.sh cydia-lproj.control __ >__/DEBIAN/control
 	
-	sudo chown -R 0 __
-	sudo chgrp -R 0 __
+	fakeroot chown -R 0 __
+	fakeroot chgrp -R 0 __
 	
 	mkdir -p debs
 	ln -sf debs/cydia-lproj_$(version)_iphoneos-arm.deb Cydia_.deb

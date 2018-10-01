@@ -64,7 +64,6 @@
 
 #undef ABS
 
-#include "apt.h"
 #include <apt-pkg/acquire.h>
 #include <apt-pkg/acquire-item.h>
 #include <apt-pkg/algorithms.h>
@@ -2458,11 +2457,7 @@ struct PackageNameOrdering :
         } while (false); _end
 
         _profile(Package$initWithVersion$Tags)
-#ifdef __arm64__
             pkgCache::TagIterator tag(version_.TagList());
-#else
-            pkgCache::TagIterator tag(iterator.TagList());
-#endif
             if (!tag.end()) {
                 tags_ = [NSMutableArray arrayWithCapacity:8];
 
