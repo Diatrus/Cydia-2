@@ -16,9 +16,12 @@ sdk := $(shell xcodebuild -sdk iphoneos -version Path)
 cycc += -idirafter /usr/include
 cycc += -F$(sdk)/System/Library/PrivateFrameworks
 
-cycc += -arch armv6
+ARCHS := armv6 arm64
+cycc += $(foreach arch,$(ARCHS),-arch $(arch))
+
+ifeq ("$(findstring armv6,$(ARCHS))","armv6")
 cycc += -Xarch_armv6 -miphoneos-version-min=5.0
-cycc += -arch arm64
+endif
 cycc += -Xarch_arm64 -miphoneos-version-min=7.0
 
 cycc += -fmessage-length=0
@@ -71,8 +74,6 @@ libs += -licucore
 uikit := 
 uikit += -framework UIKit
 
-link += -Xarch_armv6 -Wl,-segalign,4000
-
 dirs := Menes CyteKit Cydia SDURLCache
 
 code := $(foreach dir,$(dirs),$(wildcard $(foreach ext,h hpp c cpp m mm,$(dir)/*.$(ext))))
@@ -109,10 +110,13 @@ aptc += -Wno-deprecated-register
 aptc += -Wno-unused-private-field
 aptc += -Wno-unused-variable
 
+ifeq ($(findstring armv6,$(ARCHS)),"armv6")
 flag += -Xarch_armv6 -marm # @synchronized
 flag += -Xarch_armv6 -mcpu=arm1176jzf-s
 flag += -Xarch_armv6 -ffixed-r9
 link += -Xarch_armv6 -Wl,-lgcc_s.1
+link += -Xarch_armv6 -Wl,-segalign,4000
+endif
 
 plus += -std=c++11
 plus += -stdlib=libc++
