@@ -267,6 +267,7 @@ int main(int argc, const char *argv[]) {
             "deb http://cydia.zodttd.com/repo/cydia/ stable main\n"
             "deb http://apt.modmyi.com/ stable main\n"
             "deb https://repo.chariz.io/ ./\n"
+            "deb https://repo.dynastic.co/ ./\n"
 	) writeToFile:@ CYDIA_LIST atomically:YES];
     } else {
         [[NSString stringWithFormat:@
@@ -276,6 +277,7 @@ int main(int argc, const char *argv[]) {
             "deb http://cydia.zodttd.com/repo/cydia/ stable main\n"
             "deb http://apt.modmyi.com/ stable main\n"
             "deb https://repo.chariz.io/ ./\n"
+            "deb https://repo.dynastic.co/ ./\n"
         , kCFCoreFoundationVersionNumber] writeToFile:@ CYDIA_LIST atomically:YES];
     }
 
