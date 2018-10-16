@@ -226,7 +226,7 @@ int main(int argc, const char *argv[]) {
 
     bool restart(false);
 
-    if (kCFCoreFoundationVersionNumber >= 1000) {
+    if (kCFCoreFoundationVersionNumber >= 1000 && kCFCoreFoundationVersionNumber < 1349.56) {
         if (!FixProtections())
             return 1;
         switch (MoveStash()) {
@@ -289,9 +289,11 @@ int main(int argc, const char *argv[]) {
         chown(NewLibrary_ Cytore_, 501, 501);
     }
 
-    FixPermissions();
+    if (kCFCoreFoundationVersionNumber < 1349.56) {
+        FixPermissions();
 
-    restart |= FixApplications();
+        restart |= FixApplications();
+    }
 
     if (restart)
         Finish("restart");
