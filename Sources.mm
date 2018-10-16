@@ -51,6 +51,10 @@ void CydiaWriteSources() {
         if ([[source objectForKey:@"URI"] hasPrefix:@"http://apt.bingner.com"] || [[source objectForKey:@"URI"] hasPrefix:@"https://apt.bingner.com"])
             continue;
 
+        // Don't add Electra sources
+        if ([[source objectForKey:@"URI"] rangeOfString:@"electra" options:NSCaseInsensitiveSearch].location != NSNotFound)
+            continue;
+
         NSArray *sections([source objectForKey:@"Sections"] ?: [NSArray array]);
 
         fprintf(file, "%s %s %s%s%s\n",
@@ -66,6 +70,14 @@ void CydiaWriteSources() {
 }
 
 void CydiaAddSource(NSDictionary *source) {
+    // Ignore it if main source is added again
+    if ([[source objectForKey:@"URI"] hasPrefix:@"http://apt.bingner.com"] || [[source objectForKey:@"URI"] hasPrefix:@"https://apt.bingner.com"])
+        return;
+
+    // Don't add Electra sources
+    if ([[source objectForKey:@"URI"] rangeOfString:@"electra" options:NSCaseInsensitiveSearch].location != NSNotFound)
+        return;
+
     [Sources_ setObject:source forKey:[NSString stringWithFormat:@"%@:%@:%@", [source objectForKey:@"Type"], [source objectForKey:@"URI"], [source objectForKey:@"Distribution"]]];
 }
 
