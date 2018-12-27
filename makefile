@@ -109,6 +109,7 @@ aptc := $(cycc) $(flag)
 aptc += -Wno-deprecated-register
 aptc += -Wno-unused-private-field
 aptc += -Wno-unused-variable
+aptc += -DDPKG_DATADIR=\"/usr/share/dpkg\"
 
 ifeq ($(findstring armv6,$(ARCHS)),"armv6")
 flag += -Xarch_armv6 -marm # @synchronized
