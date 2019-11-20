@@ -184,8 +184,6 @@ MobileCydia: sysroot Objects/libapt.a $(object) entitlements.xml # Objects/UIKit
 	@grep '~' <<<"$(version)" >/dev/null && echo "skipping..." || strip $@
 	@echo "[uikt] $@"
 	@./uikit.sh $@
-	@echo "[sign] $@"
-	@ldid -T0 -Sentitlements.xml $@ || { rm -f $@ && false; }
 
 cfversion: cfversion.mm
 	$(cycc) -o $@ $(filter %.mm,$^) $(flag) $(link) -framework CoreFoundation
@@ -230,6 +228,8 @@ debs/cydia_$(version)_iphoneos-arm.deb: MobileCydia preinst postinst cfversion s
 	ln -s Cydia _/Applications/Cydia.app/store
 	
 	cd MobileCydia.app && find . -name '*.png' -exec cp -af ../Images/MobileCydia.app/{} ../_/Applications/Cydia.app/{} ';'
+	@echo "[sign] Cydia.app"
+	@ldid -T0 -Sentitlements.xml _/Applications/Cydia.app
 	
 	mkdir -p _/Applications/Cydia.app/Sources
 	ln -s /usr/share/bigboss/icons/bigboss.png _/Applications/Cydia.app/Sources/apt.bigboss.us.com.png
