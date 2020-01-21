@@ -9489,7 +9489,6 @@ int main(int argc, char *argv[]) {
         CydiaAddSource(@"http://cydia.zodttd.com/repo/cydia/", @"stable", [NSMutableArray arrayWithObject:@"main"]);
         CydiaAddSource(@"https://repo.chariz.com/", @"./");
         CydiaAddSource(@"https://repo.dynastic.co/", @"./");
-        CydiaAddSource(@"https://repo.packix.com/", @"./");
 
         Version_ = [NSNumber numberWithUnsignedInt:1];
 
