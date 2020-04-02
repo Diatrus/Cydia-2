@@ -3977,8 +3977,7 @@ class CydiaLogCleaner :
     if (lock_ != NULL)
         return false;
 
-    FileFd Lock;
-    Lock.Fd(GetLock(_config->FindDir("Dir::Cache::Archives") + "lock"));
+    FileFd Lock = FileFd(GetLock(_config->FindDir("Dir::Cache::Archives") + "lock"), true);
 
     NSString *title(UCLocalize("CLEAN_ARCHIVES"));
 
@@ -4000,8 +3999,7 @@ class CydiaLogCleaner :
 
     pkgRecords records(cache_);
 
-    lock_ = new FileFd();
-    lock_->Fd(GetLock(_config->FindDir("Dir::Cache::Archives") + "lock"));
+    lock_ = new FileFd(GetLock(_config->FindDir("Dir::Cache::Archives") + "lock"), true);
 
     NSString *title(UCLocalize("PREPARE_ARCHIVES"));
 
@@ -4134,8 +4132,7 @@ class CydiaLogCleaner :
     if ([self popErrorWithTitle:title forReadList:list])
         return;
 
-    FileFd lock;
-    lock.Fd(GetLock(_config->FindDir("Dir::State::Lists") + "lock"));
+    FileFd lock = FileFd(GetLock(_config->FindDir("Dir::State::Lists") + "lock"), true);
     if ([self popErrorWithTitle:title])
         return;
 
