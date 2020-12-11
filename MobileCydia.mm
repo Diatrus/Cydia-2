@@ -91,6 +91,10 @@
 #include <sys/param.h>
 #include <sys/mount.h>
 #include <sys/reboot.h>
+extern "C" {
+// Missing from header
+int reboot3(uint64_t howto, ...);
+}
 
 #include <dirent.h>
 #include <fcntl.h>
@@ -5232,6 +5236,11 @@ bool DepSubstrate(const pkgCache::VerIterator &iterator) {
 
         case 4:
             _trace();
+            reboot3(0x2000000000000000);
+            // Fall back to full reboot if userspace reboot unsupported
+
+        case 5:
+            _trace();
             if (void (*SBReboot)(mach_port_t) = reinterpret_cast<void (*)(mach_port_t)>(dlsym(RTLD_DEFAULT, "SBReboot")))
                 SBReboot(SBSSpringBoardServerPort());
             else
@@ -5330,7 +5339,8 @@ bool DepSubstrate(const pkgCache::VerIterator &iterator) {
         case 1: [progress_ setFinish:UCLocalize("CLOSE_CYDIA")]; break;
         case 2: [progress_ setFinish:UCLocalize("RESTART_SPRINGBOARD")]; break;
         case 3: [progress_ setFinish:UCLocalize("RELOAD_SPRINGBOARD")]; break;
-        case 4: [progress_ setFinish:UCLocalize("REBOOT_DEVICE")]; break;
+        case 4: [progress_ setFinish:UCLocalize("REBOOT_USERSPACE")]; break;
+        case 5: [progress_ setFinish:UCLocalize("REBOOT_DEVICE")]; break;
     }
 
     UpdateExternalStatus(Finish_ == 0 ? 0 : 2);
@@ -9585,7 +9595,7 @@ int main(int argc, char *argv[]) {
     system("/usr/libexec/cydia/cydo /bin/rm -f /var/lib/cydia/metadata.plist");
     /* }}} */
 
-    Finishes_ = [NSArray arrayWithObjects:@"return", @"reopen", @"restart", @"reload", @"reboot", nil];
+    Finishes_ = [NSArray arrayWithObjects:@"return", @"reopen", @"restart", @"reload", @"rebootuserspace", @"reboot", nil];
 
     if (kCFCoreFoundationVersionNumber > 1000)
         system("/usr/libexec/cydia/cydo /usr/libexec/cydia/setnsfpn /var/lib");

@@ -16,6 +16,10 @@
 	<true/>
 	<key>com.apple.private.skip-library-validation</key>
 	<true/>
+	<key>com.apple.private.xpc.launchd.reboot</key>
+	<true/>
+	<key>com.apple.private.xpc.launchd.userspace-reboot</key>
+	<true/>
 	<key>com.apple.frontboard.launchapplications</key>
 	<true/>
 	<key>com.apple.frontboard.shutdown</key>

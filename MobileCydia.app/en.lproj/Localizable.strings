@@ -144,6 +144,7 @@
 "QUEUED_FOR" = "Queued for %@";
 "Q_D" = "Q'd";
 "REBOOT_DEVICE" = "Reboot Device";
+"REBOOT_USERSPACE" = "Reboot Userspace";
 "RECENT" = "Recent";
 "RECENT_CHANGES_UPDATES" = "Recent Changes/Updates";
 "RECOMMENDED_BOOKS" = "Recommended Books";
