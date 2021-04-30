@@ -257,26 +257,32 @@ int main(int argc, const char *argv[]) {
     #define Cytore_ "/metadata.cb0"
 
     #define CYDIA_LIST "/etc/apt/sources.list.d/cydia.list"
+    #define ELUCUBRATUS_LIST "/etc/apt/sources.list.d/elucubratus.list"
     unlink(CYDIA_LIST);
+    unlink(ELUCUBRATUS_LIST);
     if (kCFCoreFoundationVersionNumber >= 1443) {
         [[NSString stringWithFormat:@
-            "deb https://apt.bingner.com/ ./\n"
             "deb http://apt.thebigboss.org/repofiles/cydia/ stable main\n"
             "deb http://cydia.zodttd.com/repo/cydia/ stable main\n"
             "deb http://apt.modmyi.com/ stable main\n"
             "deb https://repo.chariz.com/ ./\n"
             "deb https://repo.dynastic.co/ ./\n"
 	] writeToFile:@ CYDIA_LIST atomically:YES];
+	[[NSString stringWithFormat:@
+            "deb https://apt.bingner.com/ ./\n"
+	] writeToFile:@ ELUCUBRATUS_LIST atomically:YES];
     } else {
         [[NSString stringWithFormat:@
-            "deb http://apt.saurik.com/ ios/%.2f main\n"
-            "deb https://apt.bingner.com/ ./\n"
             "deb http://apt.thebigboss.org/repofiles/cydia/ stable main\n"
             "deb http://cydia.zodttd.com/repo/cydia/ stable main\n"
             "deb http://apt.modmyi.com/ stable main\n"
             "deb https://repo.chariz.com/ ./\n"
             "deb https://repo.dynastic.co/ ./\n"
-        , kCFCoreFoundationVersionNumber] writeToFile:@ CYDIA_LIST atomically:YES];
+        ] writeToFile:@ CYDIA_LIST atomically:YES];
+        [[NSString stringWithFormat:@
+            "deb http://apt.saurik.com/ ios/%.2f main\n"
+            "deb https://apt.bingner.com/ ./\n"
+        , kCFCoreFoundationVersionNumber] writeToFile:@ ELUCUBRATUS_LIST atomically:YES];
     }
 
     if (access(NewLibrary_ Cytore_, F_OK) != 0 && errno == ENOENT) {
