@@ -42,13 +42,6 @@ void CydiaWriteSources() {
     FILE *file(fopen(sources, "w"));
     _assert(file != NULL);
 
-    if (kCFCoreFoundationVersionNumber >= 1443) {
-        fprintf(file, "deb https://apt.bingner.com/ ./\n");
-    } else {
-        fprintf(file, "deb http://apt.saurik.com/ ios/%.2f main\n", kCFCoreFoundationVersionNumber);
-        fprintf(file, "deb https://apt.bingner.com/ ./\n");
-    }
-
     for (NSString *key in [Sources_ allKeys]) {
         if ([key hasPrefix:@"deb:http:"] && [Sources_ objectForKey:[NSString stringWithFormat:@"deb:https:%s", [key UTF8String] + 9]])
             continue;
